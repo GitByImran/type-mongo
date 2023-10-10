@@ -3,7 +3,9 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import cors from "cors";
 import mongoose from "mongoose";
-import Course from "./schema/course";
+import courseRoutes from "./routes/courseRoutes";
+import errorHandler from "./middleware/errorHandler";
+import gotoCourse from "./controller/course";
 
 dotenv.config();
 const port = process.env.PORT || 3000;
@@ -11,19 +13,13 @@ const app = express();
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(cors());
+app.use(errorHandler);
 
 app.get("/", (req, res) => {
   res.send("server connected");
 });
 
-app.get("/courses", async (req, res) => {
-  try {
-    const courses = await Course.find();
-    res.json(courses);
-  } catch {
-    res.status(500).send("internal server error");
-  }
-});
+app.get("/courses", gotoCourse);
 
 mongoose
   .connect(process.env.DB_URI || "", { dbName: "academics" })
